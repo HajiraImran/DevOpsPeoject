@@ -1,17 +1,17 @@
-name: Build and Push Docker Image
+name: Build and Deploy Docker Image
 
 on:
   push:
-    branches: [ main ]   # Run when you push to main branch
+    branches: [ main ]
   pull_request:
-    branches: [ main ]   # Run when PR is merged to main
+    branches: [ main ]
 
 jobs:
   docker:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repo code
+      # 1. Checkout repo
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -26,7 +26,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 4. Build and Push image
+      # 4. Build and Push Docker image
       - name: Build and Push
         uses: docker/build-push-action@v4
         with:
@@ -36,3 +36,20 @@ jobs:
             hajiraimran/vite-app:latest
             hajiraimran/vite-app:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
+
+      # 5. Deploy to EC2 via SSH
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            sudo docker pull hajiraimran/vite-app:latest
+            sudo docker stop vite-app || true
+            sudo docker rm vite-app || true
+            sudo docker run -d -p 80:80 --name vite-app hajiraimran/vite-app:latest
+
+
+

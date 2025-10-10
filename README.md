@@ -24,5 +24,5 @@ The pipeline runs automatically when:
 ## 🚀 How to Run Locally
 1. Clone this repository:
    ```bash
-   git clone https://github.com/<your-username>/<your-repo>.git
-   cd <your-repo>
+   git clone https://github.com/HajiraImran/DevOpsPeoject.git
+   cd my-app

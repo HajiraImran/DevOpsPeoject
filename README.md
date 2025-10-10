@@ -1,16 +1,28 @@
-# React + Vite
+# Vite App – CI/CD Pipeline Project
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📌 Project Description
+This is a simple **Vite application** containerized with Docker and deployed using a **CI/CD pipeline**.  
+The pipeline is automated using **GitHub Actions**, which builds the Docker image, pushes it to **Docker Hub**, and can deploy it on an **AWS EC2 instance**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ⚙️ CI/CD Pipeline Workflow
+The GitHub Actions workflow (`.github/workflows/ci-cd.yml`) performs the following steps:
 
-## React Compiler
+1. **Build** → Builds a Docker image from the Vite app.  
+2. **Test** → (Optional) Runs simple checks or tests.  
+3. **Push** → Pushes the Docker image to **Docker Hub**.  
+4. **Deploy** → Deploys the app to **AWS EC2** using Docker.  
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🔄 Triggers
+The pipeline runs automatically when:
+- Code is **pushed to the `main` branch**  
+- OR a **pull request is merged** into `main`  
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 How to Run Locally
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/<your-username>/<your-repo>.git
+   cd <your-repo>

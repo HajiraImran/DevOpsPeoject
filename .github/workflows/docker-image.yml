@@ -1,10 +1,10 @@
-name: Build and Push Docker Image
+name: Full CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]   # Run when you push to main branch
+    branches: [ main ]      # Run when you push to main branch
   pull_request:
-    branches: [ main ]   # Run when PR is merged to main
+    branches: [ main ]      # Run when PR is merged
 
 jobs:
   docker:
@@ -15,19 +15,33 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # 2. Set up Docker Buildx
+      # 2. Set up Node.js (for optional build/test)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Run build/test (optional)
+      - name: Build Project
+        run: npm run build
+
+      # 5. Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # 3. Log in to Docker Hub
+      # 6. Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 4. Build and Push image
-      - name: Build and Push
+      # 7. Build and Push Docker image
+      - name: Build and Push Docker Image
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -36,3 +50,17 @@ jobs:
             hajiraimran/vite-app:latest
             hajiraimran/vite-app:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
+
+      # 8. Deploy to AWS EC2
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull hajiraimran/vite-app:latest
+            docker stop vite-app || true
+            docker rm vite-app || true
+            docker run -d -p 80:80 --name vite-app hajiraimran/vite-app:latest
+

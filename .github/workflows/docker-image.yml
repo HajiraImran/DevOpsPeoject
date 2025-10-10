@@ -51,16 +51,18 @@ jobs:
             hajiraimran/vite-app:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
 
-      # 8. Deploy to AWS EC2
+      # 8. Deploy to AWS EC2 with sudo (to fix Docker permission)
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
           script: |
-            docker pull hajiraimran/vite-app:latest
-            docker stop vite-app || true
-            docker rm vite-app || true
-            docker run -d -p 80:80 --name vite-app hajiraimran/vite-app:latest
+            sudo docker pull hajiraimran/vite-app:latest
+            sudo docker stop vite-app || true
+            sudo docker rm vite-app || true
+            sudo docker run -d -p 80:80 --name vite-app hajiraimran/vite-app:latest
+
 

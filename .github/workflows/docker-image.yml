@@ -7,7 +7,7 @@ on:
     branches: [ main ]      # Run when PR is merged
 
 jobs:
-  docker:
+  docker: 
     runs-on: ubuntu-latest
 
     steps:

@@ -1,0 +1,52 @@
+name: Build and Deploy Docker Image (Dev)
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repo
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 2. Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # 3. Log in to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 4. Build and Push Docker image
+      - name: Build and Push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ayeshaakhter325/vite-project:dev
+            ayeshaakhter325/vite-project:${{ github.sha }}
+          platforms: linux/amd64,linux/arm64
+
+      # 5. Deploy to EC2 (dev server)
+      - name: Deploy to AWS EC2 (Dev)
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_DEV_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            sudo docker pull ayeshaakhter325/vite-project:dev
+            sudo docker stop vite-project-dev || true
+            sudo docker rm vite-project-dev || true
+            sudo docker run -d -p 8080:80 --name vite-project-dev ayeshaakhter325/vite-app:dev

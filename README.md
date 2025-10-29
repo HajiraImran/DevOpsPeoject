@@ -26,3 +26,5 @@ The pipeline runs automatically when:
    ```bash
    git clone https://github.com/HajiraImran/DevOpsPeoject.git
    cd my-app
+
+Jenkins working
